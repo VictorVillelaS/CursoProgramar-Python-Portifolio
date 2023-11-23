@@ -1,18 +1,38 @@
 import pyodbc
 from io import StringIO
 
-class Dados():
+
+class DBDAL:
+    objConexao = None
+
     def __init__(self):
-        return
-    
-    def ImportarBDConectado():
-        try:
+        pass
+
+    @staticmethod
+    def abrirConexao():
+        if DBDAL.objConexao is None:
             connectionString = (
                 r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
                 r'DBQ=C:.\ExercicioAccess_20231012.accdb;'
             )
-            objConexao = pyodbc.connect(connectionString)
-            objLeitorBD = objConexao.cursor()
+            DBDAL.objConexao = pyodbc.connect(connectionString)
+        return DBDAL.objConexao
+
+    @staticmethod
+    def fecharConexao(self):
+        if DBDAL.objConexao.is_connected():
+            DBDAL.objConexao.close()
+            DBDAL.objConexao = None
+
+
+class Dados(DBDAL):
+    def __init__(self):
+        super().__init__()
+    
+    def ImportarBDConectado():
+        try:
+            Dados.abrirConexao()
+            objLeitorBD = Dados.objConexao.cursor()
             strSQL = StringIO()
             strSQL.write('SELECT')
             strSQL.write(' ID')
@@ -25,7 +45,7 @@ class Dados():
             dados = []
             record = objLeitorBD.fetchone()
 
-            while record != None:
+            while record is not None:
                 dados.append(record)
                 record = objLeitorBD.fetchone()
 
@@ -36,7 +56,7 @@ class Dados():
             raise Exception(f'Problemas na consulta da tabela Preferencias: {e.args}')
 
         finally:
-            objConexao.close()
+            Dados.objConexao.close()
 
     def ImportarBDDesconectado():
         try:
