@@ -1,0 +1,3 @@
+# email do remetente
+# chave de acesso do remetente
+# email do destinatário
